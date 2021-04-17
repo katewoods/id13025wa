@@ -1,7 +1,15 @@
 ---
 title: "Parking Tickets Analysis in Toronto, ON"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
+
+# 2.0 Datasets
+
+The Parking Tickets dataset from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/) was used for this analysis. 
+
+Please note that parking ticket data from 2009 was not included in this analysis. In order to submit something at all, this data was omitted as I was unable to import the 2009 Parking Tags CSV file into R.
 
 ```{r load, message=FALSE, warning=FALSE}
 #Load required data from the RData file
@@ -26,7 +34,7 @@ library(lubridate)
 ```
 
 
-# Analysis
+# 3.1 Analysis
 
 ### 3.1.1 Top 20 ticket infractions (frequency)
 
@@ -50,11 +58,11 @@ sum(park$set_fine_amount)
 ```
 
 
-### 3.1.4a Distance to closest parking lots for top 20 infractions
+### 3.1.4.a Distance to closest parking lots for top 20 infractions
 
-### 3.1.4b Distance to closest TTC stop for top 20 infractions
+### 3.1.4.b Distance to closest TTC stop for top 20 infractions
 
-### 3.1.5a Impact of day of week in all infractions
+### 3.1.5.a Impact of day of week in all infractions
 
 ```{r}
 park$day <- day(ymd(park$date_of_infraction))
@@ -68,17 +76,17 @@ park$year <- year(ymd(park$date_of_infraction))
 wday_freq <- plyr::count(park, 'wday')
 wday_freq
 ```
-### 3.1.5b Impact of month of week in all infractions
+### 3.1.5.b Impact of month of week in all infractions
 
 ```{r}
 month_freq <- plyr::count(park, 'month')
 month_freq
 ```
 
-### 3.1.5c Impact of season of week in all infractions
+### 3.1.5.c Impact of season of week in all infractions
 
 
-# Visualization
+# 3.3 Visualization
 
 ### 3.3.1.a.i Distribution of infractions by year
 
@@ -103,6 +111,16 @@ ggplot(month_freq, aes(x=month, y=freq )) +
 ### 3.3.2.a Geographic distribution (location) of top 20 infractions (count)
 
 ### 3.3.2.b Geographic distribution by ward for top 20 infractions (count)
+
+```{r}
+#Import Toronto wards shapefile
+toronto <- st_read(dsn = "/Users/katewoods14/id13025wa/Ward Data/25-ward-model-december-2018-wgs84-latitude-longitude", 
+                   layer = "WARD_WGS84")
+
+
+plot(toronto)
+```
+
 
 ### 3.3.2.c Geographic distribution by ward for top 20 infractions (revenue)
 
