@@ -117,8 +117,14 @@ ggplot(month_freq, aes(x=month, y=freq )) +
 toronto <- st_read(dsn = "/Users/katewoods14/id13025wa/Ward Data/25-ward-model-december-2018-wgs84-latitude-longitude", 
                    layer = "WARD_WGS84")
 
-
-plot(toronto)
+#Plot wards in Toronto by longitude and latitude
+wards <- ggplot() +
+  geom_sf(data = toronto) +
+  theme_classic() +
+  xlab("Longitude") + ylab("Latitude") +
+  scalebar(data = toronto, location = "bottomright", dist = 5, dist_unit = "km", st.size = 4, 
+           transform = TRUE, model = 'WGS84')
+north2(wards, x= 0.8, y = 0.265, scale = 0.1, symbol = 3)
 ```
 
 
