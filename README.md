@@ -1,3 +1,5 @@
+Welcome to my written assessment.
+
 ```{r}
 #Load required data from the RData file
 load(file = "Kate_Woods_ID13025_data.RData")
