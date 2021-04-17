@@ -31,6 +31,7 @@ library(spdep)
 library(knitr)
 library(gridExtra)
 library(lubridate)
+library(expss)
 ```
 
 
@@ -39,21 +40,55 @@ library(lubridate)
 ### 3.1.1 Top 20 ticket infractions (frequency)
 
 ```{r}
-library(plyr)
 
-inf_freq <- plyr::count(park, 'infraction_description')
+#Create frequency table of tickets using the "infraction_code" attribute from the park data frame 
+inf_freq <- plyr::count(park, 'infraction_code')
 
+#Order the table from highest number of infractions to lowest
 df <- inf_freq[order(-inf_freq$freq),]
 
-top_20 <- head(df, n=20)
+#Produce a table of the top 20 ticket infraction codes
+df2 <- head(df, n=20)
+
+#Find the infraction descriptions for each code
+df3 <- vlookup(top_201$infraction_code, park, 4, 3)
+
+#Produce a table of the top 20 ticket infractions
+top_20 <- cbind(df2, df3)
 top_20
 ```
 
 ### 3.1.2 Top 20 ticket infractions (revenue)
 
+```{r}
+#Use the data frame with infraction frequencies to look up the fine amount in the park data frame
+df4 <- vlookup(inf_freq$infraction_code, park, 5, 3)
+
+#Create a new data frame that includes frequency and fine smount
+inf_freq_rev <- cbind(inf_freq, df4)
+
+#Add a column to the new data frame with the total revenue for each infraction code by multiplying the number of infractions by the fine amount
+inf_freq_rev$rev <- inf_freq_rev$freq * inf_freq_rev$df4
+
+#Order the table from highest number of infractions to lowest
+df5 <- inf_freq_rev[order(-inf_freq_rev$rev),]
+
+#Produce a table of the top 20 ticket infraction codes by revenue
+df6 <- head(df5, n=20)
+
+#Find the infraction descriptions for each code
+df7 <- vlookup(df6$infraction_code, park, 4, 3)
+
+#Produce a table of the top 20 ticket infractions by revenue
+top_20_rev <- cbind(df6, df7)
+top_20_rev
+```
+
+
 ### 3.1.3 Total revenue for all tickets
 
 ```{r}
+#Add together the fine amount for all tickets in the park data frame
 sum(park$set_fine_amount)
 ```
 
@@ -65,25 +100,50 @@ sum(park$set_fine_amount)
 ### 3.1.5.a Impact of day of week in all infractions
 
 ```{r}
+#Add "day" attribute to the park data frame
 park$day <- day(ymd(park$date_of_infraction))
 
+#Add "wday" (weekday) attribute to the park data frame with character output that is not abbreviated
 park$wday <- wday(ymd(park$date_of_infraction), label=TRUE, abbr=FALSE)
 
+#Add "month" attribute to the park data frame with character output that is not abbreviated
 park$month <- month(ymd(park$date_of_infraction), label=TRUE, abbr=FALSE)
 
+#Add "year" attribute to the park data frame
 park$year <- year(ymd(park$date_of_infraction))
 
+#Create frequency table of weekdays from the park data frame 
 wday_freq <- plyr::count(park, 'wday')
 wday_freq
 ```
 ### 3.1.5.b Impact of month of week in all infractions
 
 ```{r}
+#Create frequency table of months from the park data frame 
 month_freq <- plyr::count(park, 'month')
 month_freq
 ```
 
 ### 3.1.5.c Impact of season of week in all infractions
+
+```{r}
+#Create the function "find_season" that indicates what season a month is in
+find_season <- function(month) {
+
+    ifelse (month == "December" | month == "January" | month == "February", "Winter",
+      ifelse (month == "March" | month == "April" | month == "May", "Spring",
+        ifelse (month == "June" | month == "July" | month == "August", "Summer", 
+        ifelse (month == "September" | month == "October" | month == "November", "Fall","NA"))))
+}
+
+#Add "season" attribute to park data frame
+park$season <- find_season(park$month)
+
+#Create frequency table of seasons from park data frame
+season_freq <- plyr::count(park, 'season')
+season_freq
+```
+
 
 
 # 3.3 Visualization
@@ -91,8 +151,10 @@ month_freq
 ### 3.3.1.a.i Distribution of infractions by year
 
 ```{r}
+#Create frequency table of years from park data frame
 year_freq <- plyr::count(park, 'year')
 
+#Plot the frequency of infractions by year as a bar plot
 ggplot(year_freq, aes(x=year, y=freq )) +
   geom_bar(stat="identity")
 ```
@@ -101,12 +163,20 @@ ggplot(year_freq, aes(x=year, y=freq )) +
 ### 3.3.1.a.ii Distribution of infractions by month
 
 ```{r}
+#Plot the frequency of infractions by month as a bar plot
 ggplot(month_freq, aes(x=month, y=freq )) +
   geom_bar(stat="identity")
 ```
 
 
 ### 3.3.1.b Distribution of top 20 infractions by fines
+
+```{r}
+#Plot the top 20 infractions by revenue
+ggplot(top_20_rev, aes(x=factor(infraction_code), y=rev )) +
+  geom_bar(stat="identity")
+```
+
 
 ### 3.3.2.a Geographic distribution (location) of top 20 infractions (count)
 
