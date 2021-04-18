@@ -1,3 +1,5 @@
-Please follow the link above to the repository that contains an R Notebook file with my analysis.
+Please follow the link above to the repository that contains the various files of my analysis. The files of highest importance are:
 
-I understand that all of the analysis is not complete. I completed as much as I was able. I hope that the work that I have done shows what skills I have and that I am willing to build on these skills.
+* HTML file with code, visuals and analysis - "Kate_Woods_ID13025.html"
+* RMarkdown file with all work done - "Kate_Woods_ID13025.Rmd"
+* RData file with relevant data sets - "Kate_Woods_ID13025_data.Rdata"
