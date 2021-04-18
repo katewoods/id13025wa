@@ -5,6 +5,8 @@ output:
     df_print: paged
 ---
 
+# 1.0 Overview
+
 # 2.0 Datasets
 
 The Parking Tickets dataset from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/) was used for this analysis. 
@@ -212,33 +214,39 @@ The table above shows that the number of infractions in the fall, spring, and su
 
 ### 3.3.1.a.i Distribution of infractions by year
 
-```{r}
+```{r inf by year, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2008 to 2020 by year."}
 #Create frequency table of years from park data frame
 year_freq <- plyr::count(park, 'year')
 
 #Plot the frequency of infractions by year as a bar plot
 ggplot(year_freq, aes(x=year, y=freq )) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity") +
+  theme_classic() +
+  xlab("Year") + ylab("Number of Ticket Infractions")
 ```
 
 To begin, this chart clearly shows that the data from 2009 is missing. It also a bit of a downward trend in terms of the number of infractions. The peak is in 2010 while the lowest number of infractions is in 2020. The year 2020 is likely an outlier in the overall data, however, as COVID-19 likley decreased the number of cars parking in Toronto and as a result decreased the  number of infractions for that year.
 
 ### 3.3.1.a.ii Distribution of infractions by month
 
-```{r}
+```{r inf by month, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2008 to 2020 by month."}
 #Plot the frequency of infractions by month as a bar plot
 ggplot(month_freq, aes(x=month, y=freq )) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity") +
+  theme_classic() +
+  xlab("Month") + ylab("Number of Ticket Infractions")
 ```
 
 The chart above confirms the results above, that the winter months have less infractions in general. This visual representation, however, shows that that difference is not as extreme.
 
 ### 3.3.1.b Distribution of top 20 infractions by fines
 
-```{r}
+```{r inf by rev, fig.cap="Distribution of the top 20 parking ticket infractions in Toronto, ON from 2008 to 2020 by fines."}
 #Plot the top 20 infractions by revenue
 ggplot(top_20_rev, aes(x=factor(infraction_code), y=rev )) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity") +
+  theme_classic() +
+  xlab("Infraction Code") + ylab("Revenue ($)")
 ```
 
 
