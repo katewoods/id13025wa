@@ -1,9 +1,11 @@
 ---
 title: "Parking Tickets Analysis in Toronto, ON"
+author: Kate Woods
 output:
   html_document:
     df_print: paged
 ---
+Written assessment for the City of Toronto Data Analyst & Integrator job posting ID13025
 
 # 1.0 Overview
 
@@ -43,7 +45,7 @@ library(expss)
 
 In order to determine the top 20 ticket infractions, a frequency table was created using the infraction code numbers.
 
-```{r}
+```{r top 20 freq}
 #Create frequency table of tickets using the "infraction_code" attribute from the park data frame
 inf_freq <- plyr::count(park, 'infraction_code')
 
@@ -86,7 +88,7 @@ The top 20 ticket infractions are:
 
 For this analysis, the same frequency table was used to determine how many of each infraction occurred. The fine amount was then used to determine the total revenue for each infraction so that these values could be compared.
 
-```{r}
+```{r top 20 rev}
 #Use the data frame with infraction frequencies to look up the fine amount in the park data frame
 df4 <- vlookup(inf_freq$infraction_code, park, 5, 3)
 
@@ -107,7 +109,6 @@ df7 <- vlookup(df6$infraction_code, park, 4, 3)
 
 #Produce a table of the top 20 ticket infractions by revenue
 top_20_rev <- cbind(df6, df7)
-top_20_rev$df4
 ```
 
 The top 20 ticket infractions by revenue are:
@@ -139,9 +140,9 @@ The top three infractions are the same for both of the above lists. There are ot
 
 The total revenue for all tickets is $1,111,534,975.
 
-```{r}
+```{r total rev}
 #Add together the fine amount for all tickets in the park data frame
-sum(park$set_fine_amount)
+total_rev <- sum(park$set_fine_amount)
 ```
 
 
@@ -153,7 +154,7 @@ I could not complete the analysis questions regarding distance and geographic di
 
 ### 3.1.5.a Impact of day of week in all infractions
 
-```{r}
+```{r wday inf}
 #Add "day" attribute to the park data frame
 park$day <- day(ymd(park$date_of_infraction))
 
@@ -174,7 +175,7 @@ The table above shows that the number of infractions is fairly consistent throug
 
 ### 3.1.5.b Impact of month of week in all infractions
 
-```{r}
+```{r month inf}
 #Create frequency table of months from the park data frame 
 month_freq <- plyr::count(park, 'month')
 month_freq
@@ -190,7 +191,9 @@ For the purposes of this analysis, the following assumptions were made:
 * Summer: June, July, August
 * Fall: September, October, November
 
-```{r}
+A function was created to determine the season of each infraction. A frequency table was then created to count the number of infractions for each season.
+
+```{r season inf}
 #Create the function "find_season" that indicates what season a month is in
 find_season <- function(month) {
 
@@ -253,22 +256,6 @@ ggplot(top_20_rev, aes(x=factor(infraction_code), y=rev )) +
 ### 3.3.2.a Geographic distribution (location) of top 20 infractions (count)
 
 ### 3.3.2.b Geographic distribution by ward for top 20 infractions (count)
-
-```{r}
-#Import Toronto wards shapefile
-toronto <- st_read(dsn = "/Users/katewoods14/id13025wa/Ward Data/25-ward-model-december-2018-wgs84-latitude-longitude", 
-                   layer = "WARD_WGS84")
-
-#Plot wards in Toronto by longitude and latitude
-wards <- ggplot() +
-  geom_sf(data = toronto) +
-  theme_classic() +
-  xlab("Longitude") + ylab("Latitude") +
-  scalebar(data = toronto, location = "bottomright", dist = 5, dist_unit = "km", st.size = 4, 
-           transform = TRUE, model = 'WGS84')
-north2(wards, x= 0.8, y = 0.265, scale = 0.1, symbol = 3)
-```
-
 
 ### 3.3.2.c Geographic distribution by ward for top 20 infractions (revenue)
 
