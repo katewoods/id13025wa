@@ -1,5 +1,5 @@
 ---
-title: "Parking Tickets Analysis in Toronto, ON"
+title: "Parking Ticket Infraction Analysis in Toronto, ON"
 author: Kate Woods
 output:
   html_document:
@@ -9,11 +9,17 @@ Written assessment for the City of Toronto Data Analyst & Integrator job posting
 
 # 1.0 Overview
 
+The following analysis uses R to study parking ticket infractions from 2009 to 2020 in Toronto, ON. The purpose of this study is to investigate these infractions and determine if there are any patterns that can be found.
+
+First, the parking infraction data was taken from the City of Toronto's Open Data Portal in the form of multiple CSV files. The data was then imported into an R data frame where it was manipulated to produce lists, tables and charts that investigate the type and timing of infractions that occur.
+
+Please note that not all deliverables from the assessment outline were completed. Geocoding the parking ticket infraction data proved more difficult than expected due to the high volume of data. For this reason, analysis questions regarding distance and geographic distribution were not completed. The assignment was still submitted in order to demonstrate the technical capabilities displayed in the other analysis.
+
 # 2.0 Datasets
 
-The Parking Tickets dataset from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/) was used for this analysis. 
+The Parking Tickets dataset was taken from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/). 
 
-Please note that parking ticket data from 2009 was not included in this analysis. In order to submit something at all, this data was omitted as I was unable to import the 2009 Parking Tags CSV file into R.
+Please note that parking ticket data from 2008 and 2010 were not included in this analysis. In order to submit something at all, this data was omitted as the 2008 and 2010 Parking Tags CSV files were unable to be imported into R.
 
 ```{r load, message=FALSE, warning=FALSE}
 #Load required data from the RData file
@@ -36,8 +42,9 @@ library(knitr)
 library(gridExtra)
 library(lubridate)
 library(expss)
+library(kableExtra)
+library(scales)
 ```
-
 
 # 3.1 Analysis
 
@@ -138,7 +145,7 @@ The top three infractions are the same for both of the above lists. There are ot
 
 ### 3.1.3 Total revenue for all tickets
 
-The total revenue for all tickets is $1,111,534,975.
+The total revenue for all tickets in the years of study (2009, 2011-2020) is $1,111,534,975.
 
 ```{r total rev}
 #Add together the fine amount for all tickets in the park data frame
@@ -148,11 +155,11 @@ total_rev <- sum(park$set_fine_amount)
 
 ### 3.1.4.a Distance to closest parking lots for top 20 infractions
 
-I could not complete the analysis questions regarding distance and geographic distribution because I was unable to geo-code the high volume of parking ticket data. 
-
 ### 3.1.4.b Distance to closest TTC stop for top 20 infractions
 
 ### 3.1.5.a Impact of day of week in all infractions
+
+The original data sets contained the date of infraction information in the form "yyyymmdd". Before creating another frequency data frame, the day of the week must be extracted from this number and added to the data frame. The same was done for the month and year for later analysis.
 
 ```{r wday inf}
 #Add "day" attribute to the park data frame
@@ -167,18 +174,26 @@ park$month <- month(ymd(park$date_of_infraction), label=TRUE, abbr=FALSE)
 #Add "year" attribute to the park data frame
 park$year <- year(ymd(park$date_of_infraction))
 
-#Create frequency table of weekdays from the park data frame 
+#Create frequency data frame of weekdays from the park data frame 
 wday_freq <- plyr::count(park, 'wday')
-wday_freq
+
+#Create a table from the frequency data frame
+kbl(wday_freq, col.names = c("Weekday", "Number of Ticket Infractions"), caption = "The number of parking ticket infractions on each day of the week in Toronto, ON from 2009 and 2011-2020.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
-The table above shows that the number of infractions is fairly consistent throughout the week. The only day that stands out as being different is Sunday. This lower amount of tickets could be because of relaxed parking restrictions or perhaps a reduced number of people parking on Sundays.
+The table above shows that the number of infractions is fairly consistent throughout the week. The only day that stands out as being significantly different is Sunday. This lower amount of tickets could be because of relaxed parking restrictions or perhaps a reduced number of people parking on Sundays.
 
 ### 3.1.5.b Impact of month of week in all infractions
 
+A similar frequency data frame was created, this time based on the month in which the infraction took place.
+
 ```{r month inf}
-#Create frequency table of months from the park data frame 
+#Create frequency data frame of months from the park data frame 
 month_freq <- plyr::count(park, 'month')
-month_freq
+
+#Create a table from the frequency data frame
+kbl(month_freq, col.names = c("Month", "Number of Ticket Infractions"), caption = "The number of parking ticket infractions for each month in Toronto, ON from 2009 and 2011-2020.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 The table above shows a consistent amount of infractions in the months March through November. In the winter months, December through February, there are lower numbers of tickets. It would be interesting to compare these results to traveller counts to see if winter months have less cars, so less parkers, and less parking violations.
 
@@ -206,52 +221,61 @@ find_season <- function(month) {
 #Add "season" attribute to park data frame
 park$season <- find_season(park$month)
 
-#Create frequency table of seasons from park data frame
+#Create frequency data frame of seasons from park data frame
 season_freq <- plyr::count(park, 'season')
-season_freq
+
+#Create a table from the frequency data frame
+kbl(season_freq, col.names = c("Season", "Number of Ticket Infractions"), caption = "The number of parking ticket infractions for each season in Toronto, ON from 2009 and 2011-2020.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-The table above shows that the number of infractions in the fall, spring, and summer are very similar. The number of infractions in the winter is significantly lower. This aligns with the previous results from the comparison of infractions by month.
+The table above shows that the number of infractions in the fall, spring, and summer are quite similar. The number of infractions in the winter is significantly lower. This aligns with the previous results from the comparison of infractions by month.
 
 # 3.3 Visualization
 
 ### 3.3.1.a.i Distribution of infractions by year
 
-```{r inf by year, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2008 to 2020 by year."}
+```{r inf by year, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2009 and 2011 to 2020 by year."}
 #Create frequency table of years from park data frame
 year_freq <- plyr::count(park, 'year')
 
 #Plot the frequency of infractions by year as a bar plot
 ggplot(year_freq, aes(x=year, y=freq )) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", fill="lightblue3") +
   theme_classic() +
-  xlab("Year") + ylab("Number of Ticket Infractions")
+  xlab("Year") + ylab("Number of Ticket Infractions") +
+  scale_y_continuous(labels = comma) +
+  scale_x_continuous(labels = as.character(year_freq$year), breaks = year_freq$year)
 ```
 
-To begin, this chart clearly shows that the data from 2009 is missing. It also a bit of a downward trend in terms of the number of infractions. The peak is in 2010 while the lowest number of infractions is in 2020. The year 2020 is likely an outlier in the overall data, however, as COVID-19 likley decreased the number of cars parking in Toronto and as a result decreased the  number of infractions for that year.
+To begin, this chart clearly shows that the data from 2010 is missing. It also shows a slight downward trend in terms of the number of infractions. The peak is in 2011 while the lowest number of infractions is in 2020. The year 2020 may be an outlier in the overall data, however, as COVID-19 likely decreased the number of cars parking in Toronto and as a result decreased the  number of infractions for that year.
 
 ### 3.3.1.a.ii Distribution of infractions by month
 
-```{r inf by month, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2008 to 2020 by month."}
+```{r inf by month, fig.cap="Distribution of parking ticket infractions in Toronto, ON from 2009 and 2011 to 2020 by month."}
 #Plot the frequency of infractions by month as a bar plot
 ggplot(month_freq, aes(x=month, y=freq )) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", fill="lightblue3") +
   theme_classic() +
-  xlab("Month") + ylab("Number of Ticket Infractions")
+  xlab("Month") + ylab("Number of Ticket Infractions") +
+  scale_y_continuous(labels = comma) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
-The chart above confirms the results above, that the winter months have less infractions in general. This visual representation, however, shows that that difference is not as extreme.
+The chart above confirms the results above, that the winter months have less infractions in general. This visual representation, however, shows that the difference is not as extreme as the numbers may lead one to believe.
 
 ### 3.3.1.b Distribution of top 20 infractions by fines
 
-```{r inf by rev, fig.cap="Distribution of the top 20 parking ticket infractions in Toronto, ON from 2008 to 2020 by fines."}
+```{r inf by rev, fig.cap="Distribution of the top 20 parking ticket infractions in Toronto, ON from 2009 and 2011 to 2020 by fines."}
 #Plot the top 20 infractions by revenue
-ggplot(top_20_rev, aes(x=factor(infraction_code), y=rev )) +
-  geom_bar(stat="identity") +
+ggplot(top_20_rev, aes(x=reorder(factor(infraction_code), -rev), y=rev)) +
+  geom_col(fill="lightblue3") +
   theme_classic() +
-  xlab("Infraction Code") + ylab("Revenue ($)")
+  xlab("Infraction Code") + ylab("Revenue") +
+  scale_y_continuous(labels = dollar_format())
 ```
 
+The chart above shows the top 20 parking ticket infractions by fine in decreasing order. The first infraction, code 5, has a much higher revenue in comparison to the others. In fact, this infraction alone accounts for 16.6% of revenue from the time period of this study. With 437 infraction codes, this is well above the equal share that each infraction would contribute to the revenue.
 
 ### 3.3.2.a Geographic distribution (location) of top 20 infractions (count)
 
@@ -260,4 +284,3 @@ ggplot(top_20_rev, aes(x=factor(infraction_code), y=rev )) +
 ### 3.3.2.c Geographic distribution by ward for top 20 infractions (revenue)
 
 ### 3.3.2.d Any relevant observations in relation to socio demographic profiles
-
