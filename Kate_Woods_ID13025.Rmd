@@ -39,9 +39,10 @@ library(expss)
 
 ### 3.1.1 Top 20 ticket infractions (frequency)
 
-```{r}
+In order to determine the top 20 ticket infractions, a frequency table was created using the infraction code numbers.
 
-#Create frequency table of tickets using the "infraction_code" attribute from the park data frame 
+```{r}
+#Create frequency table of tickets using the "infraction_code" attribute from the park data frame
 inf_freq <- plyr::count(park, 'infraction_code')
 
 #Order the table from highest number of infractions to lowest
@@ -51,14 +52,37 @@ df <- inf_freq[order(-inf_freq$freq),]
 df2 <- head(df, n=20)
 
 #Find the infraction descriptions for each code
-df3 <- vlookup(top_201$infraction_code, park, 4, 3)
+df3 <- vlookup(df2$infraction_code, park, 4, 3)
 
 #Produce a table of the top 20 ticket infractions
 top_20 <- cbind(df2, df3)
-top_20
 ```
+The top 20 ticket infractions are:
+
+1. CODE 5 - PARK HWY PROHIBED TIME/DAY
+2. CODE 3 - PARK/LEAVE ON PRIVATE PROPERTY
+3. CODE 29 - PARK PROHIBITED TIME NO PERMIT
+4. CODE 207 - PARK FAIL TO DEP. FEE MACHINE
+5. CODE 210 - PARK FAIL TO DISPLAY RECEIPT
+6. CODE 9 - STOP HWY PROHIBITED TIME/DAY
+7. CODE 2 - PARK-LONGER THAN 3 HOURS
+8. CODE 8 - STD VEH HWY PROHIB TIME/DAY
+9. CODE 6 - PARK HWY IN EXCESS PRMTD TIME
+10. CODE 406 - PARK-VEH. W/O VALID ONT PLATE
+11. CODE 403 - STOP-SIGNED HIGHWAY-RUSH HOUR
+12. CODE 15 - PARK 3M OF FIRE HYDRANT
+13. CODE 28 - PARK ON   2AM-6AM DEC 1-MAR 31
+14. CODE 192 - STAND SIGNED TRANSIT STOP
+15. CODE 312 - PARKING MACH-NOT USED/NO FEE
+16. CODE 30 - STOP ON/OVER SIDEWALK/FOOTPATH
+17. CODE 347 - PARK IN A FIRE ROUTE
+18. CODE 134 - PARK IN PUBLIC LANE
+19. CODE 16 - PARK - 9M OF INTERSECTING HWY
+20. CODE 4 - PARK/LEAVE ON MUNICIPAL PRPTY
 
 ### 3.1.2 Top 20 ticket infractions (revenue)
+
+For this analysis, the same frequency table was used to determine how many of each infraction occurred. The fine amount was then used to determine the total revenue for each infraction so that these values could be compared.
 
 ```{r}
 #Use the data frame with infraction frequencies to look up the fine amount in the park data frame
@@ -81,11 +105,37 @@ df7 <- vlookup(df6$infraction_code, park, 4, 3)
 
 #Produce a table of the top 20 ticket infractions by revenue
 top_20_rev <- cbind(df6, df7)
-top_20_rev
+top_20_rev$df4
 ```
 
+The top 20 ticket infractions by revenue are:
+
+1. CODE 5 - PARK HWY PROHIBED TIME/DAY
+2. CODE 3 - PARK/LEAVE ON PRIVATE PROPERTY
+3. CODE 29 - PARK PROHIBITED TIME NO PERMIT
+4. CODE 9 - STOP HWY PROHIBITED TIME/DAY
+5. CODE 207 - PARK FAIL TO DEP. FEE MACHINE
+6. CODE 403 - STOP-SIGNED HIGHWAY-RUSH HOUR
+7. CODE 210 - PARK FAIL TO DISPLAY RECEIPT
+8. CODE 8 - STD VEH HWY PROHIB TIME/DAY
+9. CODE 347 - PARK IN A FIRE ROUTE
+10. CODE 15 - PARK 3M OF FIRE HYDRANT
+11. CODE 6 - PARK HWY IN EXCESS PRMTD TIME
+12. CODE 406 - PARK-VEH. W/O VALID ONT PLATE
+13. CODE 367 - STAND ON-ST DISABL LDG NO PRMT
+14. CODE 355 - PARK IN DISABLED NO PERMIT
+15. CODE 2 - PARK-LONGER THAN 3 HOURS
+16. CODE 192 - STAND SIGNED TRANSIT STOP
+17. CODE 30 - STOP ON/OVER SIDEWALK/FOOTPATH
+18. CODE 363 - PARK ON-STRT DISABLD NO PERMIT
+19. CODE 28 - PARK ON   2AM-6AM DEC 1-MAR 31
+20. CODE 312 - PARKING MACH-NOT USED/NO FEE
+
+The top three infractions are the same for both of the above lists. There are other similarities throughout, but more interestingly there are some differences. There are multiple infractions in the second list with significantly higher fine amounts in comparison to those in the first list. For example, three infractions of $450 are in the top 20 by revenue but not by frequency. Although these high fine amounts occur less frequently overall, they are weighted more because of their fine amount and so appear on the second list and not the first.
 
 ### 3.1.3 Total revenue for all tickets
+
+The total revenue for all tickets is $1,111,534,975.
 
 ```{r}
 #Add together the fine amount for all tickets in the park data frame
@@ -94,6 +144,8 @@ sum(park$set_fine_amount)
 
 
 ### 3.1.4.a Distance to closest parking lots for top 20 infractions
+
+I could not complete the analysis questions regarding distance and geographic distribution because I was unable to geo-code the high volume of parking ticket data. 
 
 ### 3.1.4.b Distance to closest TTC stop for top 20 infractions
 
@@ -116,6 +168,8 @@ park$year <- year(ymd(park$date_of_infraction))
 wday_freq <- plyr::count(park, 'wday')
 wday_freq
 ```
+The table above shows that the number of infractions is fairly consistent throughout the week. The only day that stands out as being different is Sunday. This lower amount of tickets could be because of relaxed parking restrictions or perhaps a reduced number of people parking on Sundays.
+
 ### 3.1.5.b Impact of month of week in all infractions
 
 ```{r}
@@ -123,8 +177,16 @@ wday_freq
 month_freq <- plyr::count(park, 'month')
 month_freq
 ```
+The table above shows a consistent amount of infractions in the months March through November. In the winter months, December through February, there are lower numbers of tickets. It would be interesting to compare these results to traveller counts to see if winter months have less cars, so less parkers, and less parking violations.
 
 ### 3.1.5.c Impact of season of week in all infractions
+
+For the purposes of this analysis, the following assumptions were made:
+
+* Winter: January, February, March
+* Spring: March, April, May
+* Summer: June, July, August
+* Fall: September, October, November
 
 ```{r}
 #Create the function "find_season" that indicates what season a month is in
@@ -144,7 +206,7 @@ season_freq <- plyr::count(park, 'season')
 season_freq
 ```
 
-
+The table above shows that the number of infractions in the fall, spring, and summer are very similar. The number of infractions in the winter is significantly lower. This aligns with the previous results from the comparison of infractions by month.
 
 # 3.3 Visualization
 
@@ -159,6 +221,7 @@ ggplot(year_freq, aes(x=year, y=freq )) +
   geom_bar(stat="identity")
 ```
 
+To begin, this chart clearly shows that the data from 2009 is missing. It also a bit of a downward trend in terms of the number of infractions. The peak is in 2010 while the lowest number of infractions is in 2020. The year 2020 is likely an outlier in the overall data, however, as COVID-19 likley decreased the number of cars parking in Toronto and as a result decreased the  number of infractions for that year.
 
 ### 3.3.1.a.ii Distribution of infractions by month
 
@@ -168,6 +231,7 @@ ggplot(month_freq, aes(x=month, y=freq )) +
   geom_bar(stat="identity")
 ```
 
+The chart above confirms the results above, that the winter months have less infractions in general. This visual representation, however, shows that that difference is not as extreme.
 
 ### 3.3.1.b Distribution of top 20 infractions by fines
 
