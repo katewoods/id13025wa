@@ -18,7 +18,7 @@ Please note that not all deliverables from the assessment outline were completed
 
 # 2.0 Datasets
 
-The Parking Tickets dataset was taken from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/). The CSV files were imported into R in the Rdata file "Kate_Woods_ID13025_data.Rdata" which can be found in the repository.
+The Parking Tickets dataset was taken from the City of Toronto's Open Data Portal (https://open.toronto.ca/dataset/parking-tickets/). The CSV files were imported into R in the R file "data.R" and then stored in the Rdata file "Kate_Woods_ID13025_data.Rdata". Both of these files can be found in the repository.
 
 Please note that parking ticket data from 2008 and 2010 were not included in this analysis. In order to submit something at all, this data was omitted as the 2008 and 2010 Parking Tags CSV files were unable to be imported into R.
 
